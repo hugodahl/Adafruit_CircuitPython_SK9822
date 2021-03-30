@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Adafruit Industries
+#
+# SPDX-License-Identifier: Unlicense
+
 name: Build CI
 
 on: [pull_request, push]
@@ -48,6 +52,11 @@ jobs:
         black --check --target-version=py35 .
     - name: Build assets
       run: circuitpython-build-bundles --filename_prefix ${{ steps.repo-name.outputs.repo-name }} --library_location .
+    - name: Check For docs folder
+      id: need-docs
+      run: |
+        echo ::set-output name=docs::$( find . -wholename './docs' )
     - name: Build docs
+      if: contains(steps.need-docs.outputs.docs, 'docs')
       working-directory: docs
       run: sphinx-build -E -W -b html . _build/html
